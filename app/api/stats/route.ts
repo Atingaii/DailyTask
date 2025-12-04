@@ -15,12 +15,12 @@ export async function GET() {
 
   // 总统计
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((t) => t.isCompleted).length;
+  const completedTasks = tasks.filter((t: { isCompleted: boolean }) => t.isCompleted).length;
 
   // 按日期分组统计
   const dailyStats: Record<string, { total: number; completed: number }> = {};
   
-  tasks.forEach((task) => {
+  tasks.forEach((task: { taskDate: Date; isCompleted: boolean }) => {
     const dateStr = task.taskDate.toISOString().slice(0, 10);
     if (!dailyStats[dateStr]) {
       dailyStats[dateStr] = { total: 0, completed: 0 };

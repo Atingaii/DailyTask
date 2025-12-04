@@ -81,7 +81,7 @@ export default async function HistoryPage() {
   const { totalTasks, completedTasks, streak, last7Days, dates } = await getHistoryData();
 
   return (
-    <main className="min-h-screen bg-[var(--bg-soft)] text-slate-800 px-4 py-6 md:px-8 md:py-8">
+    <main className="min-h-screen text-slate-800 px-4 py-6 md:px-8 md:py-8">
       <div className="mx-auto max-w-2xl">
         <DailyQuote />
         <div className="mb-4">

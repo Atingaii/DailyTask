@@ -46,7 +46,7 @@ export function StatsCard({ totalTasks, completedTasks, streak }: Props) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: i * 0.1 }}
-          className="bg-white rounded-xl p-3 shadow-sm border border-slate-100 text-center"
+          className="bg-white/65 backdrop-blur-xl rounded-2xl p-3 shadow-[0_8px_32px_rgba(31,38,135,0.1)] border border-white/50 text-center hover:bg-white/75 transition-all duration-300"
         >
           <div className="text-xl mb-1">{stat.icon}</div>
           <motion.div

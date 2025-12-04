@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TaskList } from "@/components/tasks/TaskList";
 import { TaskEditor } from "@/components/tasks/TaskEditor";
 import { ProgressRing } from "@/components/tasks/ProgressRing";
+import { Confetti } from "@/components/effects/Confetti";
 import type { Task as DbTask } from "@prisma/client";
 
 type Props = {
@@ -14,8 +15,24 @@ export default function TomorrowClient({ initialTasks }: Props) {
   const [tasks, setTasks] = useState(
     initialTasks.map((t) => ({ id: t.id, title: t.title, isCompleted: t.isCompleted }))
   );
+  const [showConfetti, setShowConfetti] = useState(false);
+  const prevCompletedRef = useRef(0);
 
   const completed = tasks.filter((t) => t.isCompleted).length;
+  const total = tasks.length;
+
+  // 检测是否刚刚达到100%完成
+  useEffect(() => {
+    const wasComplete = prevCompletedRef.current === total && total > 0;
+    const isNowComplete = completed === total && total > 0;
+    
+    if (!wasComplete && isNowComplete && prevCompletedRef.current < completed) {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 100);
+    }
+    
+    prevCompletedRef.current = completed;
+  }, [completed, total]);
 
   const handleToggle = async (id: string, current: boolean) => {
     setTasks((prev) =>
@@ -50,8 +67,9 @@ export default function TomorrowClient({ initialTasks }: Props) {
 
   return (
     <div>
+      <Confetti trigger={showConfetti} />
       <div className="flex items-center justify-end mb-4">
-        <ProgressRing total={tasks.length} completed={completed} label="计划完成度" />
+        <ProgressRing total={total} completed={completed} label="计划完成度" />
       </div>
       <TaskList tasks={tasks} onToggle={handleToggle} onDelete={handleDelete} />
       <TaskEditor onAdd={handleAdd} placeholder="写下你明天最重要的一件事..." />

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function TopNav({ current }: { current: "today" | "tomorrow" | "history" }) {
   const base =
-    "flex-1 sm:flex-none px-3 py-2 sm:py-1.5 text-sm sm:text-xs text-center rounded-xl sm:rounded-2xl transition-colors duration-200 font-medium";
+    "flex-1 sm:flex-none px-3 py-2 sm:py-1.5 text-sm sm:text-xs text-center rounded-xl sm:rounded-2xl transition-all duration-200 font-medium";
 
   return (
     <div className="flex items-center gap-2 mb-4">
@@ -10,8 +10,8 @@ export function TopNav({ current }: { current: "today" | "tomorrow" | "history" 
         href="/"
         className={`${base} ${
           current === "today"
-            ? "bg-blue-500 text-white"
-            : "text-slate-500 bg-white border border-slate-200 hover:bg-slate-50"
+            ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-200"
+            : "text-slate-600 bg-white/50 backdrop-blur-sm border border-white/50 hover:bg-white/70"
         }`}
       >
         今日
@@ -20,8 +20,8 @@ export function TopNav({ current }: { current: "today" | "tomorrow" | "history" 
         href="/tomorrow"
         className={`${base} ${
           current === "tomorrow"
-            ? "bg-blue-500 text-white"
-            : "text-slate-500 bg-white border border-slate-200 hover:bg-slate-50"
+            ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-200"
+            : "text-slate-600 bg-white/50 backdrop-blur-sm border border-white/50 hover:bg-white/70"
         }`}
       >
         明日
@@ -30,8 +30,8 @@ export function TopNav({ current }: { current: "today" | "tomorrow" | "history" 
         href="/history"
         className={`${base} ${
           current === "history"
-            ? "bg-blue-500 text-white"
-            : "text-slate-500 bg-white border border-slate-200 hover:bg-slate-50"
+            ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-200"
+            : "text-slate-600 bg-white/50 backdrop-blur-sm border border-white/50 hover:bg-white/70"
         }`}
       >
         历史

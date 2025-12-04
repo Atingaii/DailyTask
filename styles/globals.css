@@ -2,20 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 毛笔字体 */
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+
 :root {
   --bg-soft: #ffffff;
-  --bg-page: #f8fafc;
+  --bg-page: linear-gradient(135deg, #e0e7ff 0%, #fae8ff 50%, #e0f2fe 100%);
   --accent: #3b82f6;
   --accent-hover: #2563eb;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --border: #e2e8f0;
+  
+  /* Glass effect variables */
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  
+  /* 毛笔字体 */
+  --font-brush: 'Ma Shan Zheng', cursive;
 }
 
 body {
   background: var(--bg-page);
+  background-attachment: fixed;
   color: var(--text-primary);
   -webkit-tap-highlight-color: transparent;
+  min-height: 100vh;
+}
+
+/* Glass morphism base class */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
 /* Safe area for iPhone notch */

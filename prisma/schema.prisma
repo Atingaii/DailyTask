@@ -14,6 +14,7 @@ model User {
   createdAt   DateTime @default(now()) @map("created_at")
 
   tasks Task[]
+  moods DailyMood[]
 
   @@map("users")
 }
@@ -43,4 +44,18 @@ model DailyQuote {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("daily_quotes")
+}
+
+model DailyMood {
+  id        String   @id @default(uuid())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?  @map("user_id")
+  moodDate  DateTime @unique @map("mood_date") @db.Date
+  mood      String   // emoji: ☀️, ⛅, ☁️, 🌧️, ⚡
+  note      String?  // 可选的心情备注
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId, moodDate], name: "idx_mood_user_date")
+  @@map("daily_moods")
 }

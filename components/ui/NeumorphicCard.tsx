@@ -11,10 +11,13 @@ export function NeumorphicCard({ inset, className, ...rest }: Props) {
   return (
     <div
       className={clsx(
-        "rounded-xl bg-white border border-slate-200 transition-shadow duration-200",
+        "rounded-2xl transition-all duration-300",
+        "bg-white/65 backdrop-blur-xl",
+        "border border-white/50",
+        "shadow-[0_8px_32px_rgba(31,38,135,0.1)]",
         inset
           ? "shadow-inner"
-          : "shadow-sm hover:shadow-md",
+          : "hover:shadow-[0_12px_40px_rgba(31,38,135,0.15)] hover:bg-white/75",
         className
       )}
       {...rest}
