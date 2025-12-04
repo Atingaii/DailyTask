@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-soft: #ffffff;
+  --bg-page: #f8fafc;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+}
+
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safe area for iPhone notch */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better touch targets */
+@media (max-width: 640px) {
+  button, a {
+    min-height: 44px;
+  }
+}
