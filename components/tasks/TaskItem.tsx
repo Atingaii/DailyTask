@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { NeumorphicCard } from "@/components/ui/NeumorphicCard";
+import { XPPopup } from "@/components/gamification/XPPopup";
+import { completeTaskAsync } from "@/lib/gameSystem";
+import { Achievement } from "@/components/gamification/Achievements";
 
 export type Task = {
   id: string;
@@ -14,6 +17,7 @@ type Props = {
   task: Task;
   onToggle: (id: string, current: boolean) => void;
   onDelete: (id: string) => void;
+  onAchievement?: (achievement: Achievement) => void;
 };
 
 // 勾选图标 SVG
@@ -36,9 +40,28 @@ const CheckIcon = () => (
   </svg>
 );
 
-export function TaskItem({ task, onToggle, onDelete }: Props) {
+export function TaskItem({ task, onToggle, onDelete, onAchievement }: Props) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const handleClick = () => onToggle(task.id, task.isCompleted);
+  const [showXP, setShowXP] = useState(false);
+  const [xpAmount, setXpAmount] = useState(10);
+
+  const handleClick = useCallback(async () => {
+    // 如果从未完成变为完成，触发 XP 动画
+    if (!task.isCompleted) {
+      // 先显示动画，同时调用 API
+      setXpAmount(10);
+      setShowXP(true);
+      
+      // 异步调用 API
+      completeTaskAsync().then((result) => {
+        // 如果有新成就，通知父组件
+        if (result.newAchievements.length > 0 && onAchievement) {
+          result.newAchievements.forEach((a) => onAchievement(a));
+        }
+      });
+    }
+    onToggle(task.id, task.isCompleted);
+  }, [task.id, task.isCompleted, onToggle, onAchievement]);
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -65,11 +88,14 @@ export function TaskItem({ task, onToggle, onDelete }: Props) {
           transition={{ duration: 0.25 }}
         >
           <NeumorphicCard
-            className={`flex items-center justify-between px-4 py-3.5 mb-3 cursor-pointer transition-all duration-300 ${
+            className={`relative flex items-center justify-between px-4 py-3.5 mb-3 cursor-pointer transition-all duration-300 ${
               task.isCompleted ? "bg-gradient-to-r from-blue-50/80 to-indigo-50/80" : ""
             }`}
             onClick={handleClick}
           >
+            {/* XP 弹出动画 */}
+            <XPPopup show={showXP} xp={xpAmount} onComplete={() => setShowXP(false)} />
+            
             <div className="flex items-center gap-3">
               <motion.div
                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${

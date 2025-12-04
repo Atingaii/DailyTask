@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { AnimatePresence } from "framer-motion";
 import { TaskList } from "@/components/tasks/TaskList";
 import { TaskEditor } from "@/components/tasks/TaskEditor";
 import { ProgressRing } from "@/components/tasks/ProgressRing";
 import { Confetti } from "@/components/effects/Confetti";
 import { MoodSelector } from "@/components/mood/MoodSelector";
+import { UserLevel } from "@/components/gamification/UserLevel";
+import { AchievementUnlock, Achievement } from "@/components/gamification/Achievements";
 import type { Task as DbTask } from "@prisma/client";
 
 type Props = {
@@ -18,6 +21,8 @@ export default function TodayClient({ initialTasks }: Props) {
   );
   const [showConfetti, setShowConfetti] = useState(false);
   const [todayMood, setTodayMood] = useState<string | undefined>();
+  const [pendingAchievement, setPendingAchievement] = useState<Achievement | null>(null);
+  const [userLevelKey, setUserLevelKey] = useState(0);
   const prevCompletedRef = useRef(0);
 
   const completed = tasks.filter((t) => t.isCompleted).length;
@@ -50,6 +55,13 @@ export default function TodayClient({ initialTasks }: Props) {
     prevCompletedRef.current = completed;
   }, [completed, total]);
 
+  // 成就解锁回调
+  const handleAchievement = useCallback((achievement: Achievement) => {
+    setPendingAchievement(achievement);
+    // 触发 UserLevel 更新
+    setUserLevelKey(k => k + 1);
+  }, []);
+
   const handleMoodSelect = async (mood: string) => {
     setTodayMood(mood);
     const today = new Date().toISOString().slice(0, 10);
@@ -64,6 +76,10 @@ export default function TodayClient({ initialTasks }: Props) {
     setTasks((prev) =>
       prev.map((t) => (t.id === id ? { ...t, isCompleted: !current } : t))
     );
+    // 触发 UserLevel 更新（因为 XP 变了）
+    if (!current) {
+      setUserLevelKey(k => k + 1);
+    }
     await fetch("/api/tasks/toggle", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -94,15 +110,34 @@ export default function TodayClient({ initialTasks }: Props) {
   return (
     <div>
       <Confetti trigger={showConfetti} />
+      
+      {/* 成就解锁弹窗 */}
+      <AnimatePresence>
+        {pendingAchievement && (
+          <AchievementUnlock 
+            achievement={pendingAchievement} 
+            onClose={() => setPendingAchievement(null)} 
+          />
+        )}
+      </AnimatePresence>
+
       <div className="flex items-center justify-between mb-4">
-        <MoodSelector 
-          currentMood={todayMood} 
-          onMoodSelect={handleMoodSelect}
-          compact
-        />
+        <div className="flex items-center gap-3">
+          <MoodSelector 
+            currentMood={todayMood} 
+            onMoodSelect={handleMoodSelect}
+            compact
+          />
+          <UserLevel key={userLevelKey} />
+        </div>
         <ProgressRing total={total} completed={completed} />
       </div>
-      <TaskList tasks={tasks} onToggle={handleToggle} onDelete={handleDelete} />
+      <TaskList 
+        tasks={tasks} 
+        onToggle={handleToggle} 
+        onDelete={handleDelete}
+        onAchievement={handleAchievement}
+      />
       <TaskEditor onAdd={handleAdd} placeholder="写下你今天最重要的一件事..." />
     </div>
   );

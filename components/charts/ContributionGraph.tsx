@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 
 type DayData = {
   date: string;
@@ -63,6 +63,7 @@ const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
 export function ContributionGraph({ data, onDayClick }: Props) {
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   const dates = useMemo(() => getLastYearDates(), []);
   
@@ -169,6 +170,13 @@ export function ContributionGraph({ data, onDayClick }: Props) {
     }
   };
 
+  // 自动滚动到当前日期（最右边）
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth;
+    }
+  }, []);
+
   return (
     <div className="bg-white/65 backdrop-blur-xl rounded-2xl p-4 shadow-[0_8px_32px_rgba(31,38,135,0.1)] border border-white/50 mb-6">
       <div className="flex items-center justify-between mb-4">
@@ -179,7 +187,7 @@ export function ContributionGraph({ data, onDayClick }: Props) {
         </div>
       </div>
 
-      <div className="overflow-x-auto pb-2">
+      <div ref={scrollContainerRef} className="overflow-x-auto pb-2">
         {/* 月份标签行 */}
         <div className="flex mb-1">
           <div className="w-6 flex-shrink-0"></div>
