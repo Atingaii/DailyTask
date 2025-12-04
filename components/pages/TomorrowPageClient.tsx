@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { TaskList } from "@/components/tasks/TaskList";
 import { TaskEditor } from "@/components/tasks/TaskEditor";
+import { ProgressRing } from "@/components/tasks/ProgressRing";
 import type { Task as DbTask } from "@prisma/client";
 
 type Props = {
@@ -13,6 +14,8 @@ export default function TomorrowClient({ initialTasks }: Props) {
   const [tasks, setTasks] = useState(
     initialTasks.map((t) => ({ id: t.id, title: t.title, isCompleted: t.isCompleted }))
   );
+
+  const completed = tasks.filter((t) => t.isCompleted).length;
 
   const handleToggle = async (id: string, current: boolean) => {
     setTasks((prev) =>
@@ -47,6 +50,9 @@ export default function TomorrowClient({ initialTasks }: Props) {
 
   return (
     <div>
+      <div className="flex items-center justify-end mb-4">
+        <ProgressRing total={tasks.length} completed={completed} label="计划完成度" />
+      </div>
       <TaskList tasks={tasks} onToggle={handleToggle} onDelete={handleDelete} />
       <TaskEditor onAdd={handleAdd} placeholder="写下你明天最重要的一件事..." />
     </div>

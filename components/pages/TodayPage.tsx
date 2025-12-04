@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { today } from "@/lib/date";
 import { DailyQuote } from "@/components/quotes/DailyQuote";
 import { TopNav } from "@/components/layout/TopNav";
-import { ProgressRing } from "@/components/tasks/ProgressRing";
 import TodayClient from "./TodayPageClient";
 
 async function getTodayTasks() {
@@ -20,20 +19,15 @@ async function getTodayTasks() {
 
 export default async function TodayPage() {
   const tasks = await getTodayTasks();
-  const completed = tasks.filter((t) => t.isCompleted).length;
 
   return (
     <main className="min-h-screen px-4 py-4 sm:px-6 sm:py-6 md:px-8 md:py-8">
       <div className="mx-auto max-w-2xl">
         <DailyQuote />
         
-        {/* Header - stacks on mobile */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          <div>
-            <h1 className="text-lg sm:text-xl font-semibold tracking-tight">今日专注</h1>
-            <p className="text-xs text-slate-400">{today()} · 规划并完成你最重要的事情</p>
-          </div>
-          <ProgressRing total={tasks.length} completed={completed} />
+        <div className="mb-4">
+          <h1 className="text-lg sm:text-xl font-semibold tracking-tight">今日专注</h1>
+          <p className="text-xs text-slate-400">{today()} · 规划并完成你最重要的事情</p>
         </div>
         
         <TopNav current="today" />
