@@ -6,7 +6,8 @@ export async function POST(req: Request) {
   const body = await req.json();
   const title: string = body.title;
   const dateStr = today();
-  const date = new Date(dateStr + "T12:00:00");
+  // 使用 UTC 时间存储，确保日期一致性
+  const date = new Date(dateStr + "T12:00:00.000Z");
 
   const task = await prisma.task.create({
     data: {

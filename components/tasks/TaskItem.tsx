@@ -48,12 +48,13 @@ export function TaskItem({ task, onToggle, onDelete, onAchievement }: Props) {
   const handleClick = useCallback(async () => {
     // 如果从未完成变为完成，触发 XP 动画
     if (!task.isCompleted) {
-      // 先显示动画，同时调用 API
-      setXpAmount(10);
-      setShowXP(true);
-      
-      // 异步调用 API
-      completeTaskAsync().then((result) => {
+      // 异步调用 API，传递 taskId 防止重复计算
+      completeTaskAsync(task.id).then((result) => {
+        // 只有真正获得 XP 时才显示动画
+        if (result.xpGained > 0) {
+          setXpAmount(result.xpGained);
+          setShowXP(true);
+        }
         // 如果有新成就，通知父组件
         if (result.newAchievements.length > 0 && onAchievement) {
           result.newAchievements.forEach((a) => onAchievement(a));

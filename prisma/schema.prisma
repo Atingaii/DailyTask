@@ -62,17 +62,18 @@ model DailyMood {
 }
 
 model GameProgress {
-  id              String   @id @default(uuid())
-  user            User?    @relation(fields: [userId], references: [id])
-  userId          String?  @unique @map("user_id")
-  xp              Int      @default(0)
-  totalCompleted  Int      @default(0) @map("total_completed")
-  streak          Int      @default(0)
-  lastActiveDate  DateTime? @map("last_active_date") @db.Date
-  achievements    String   @default("{}") // JSON string of unlocked achievements
-  dailyCompleted  String   @default("{}") @map("daily_completed") // JSON: {date: count}
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(uuid())
+  user             User?    @relation(fields: [userId], references: [id])
+  userId           String?  @unique @map("user_id")
+  xp               Int      @default(0)
+  totalCompleted   Int      @default(0) @map("total_completed")
+  streak           Int      @default(0)
+  lastActiveDate   DateTime? @map("last_active_date") @db.Date
+  achievements     String   @default("{}") // JSON string of unlocked achievements
+  dailyCompleted   String   @default("{}") @map("daily_completed") // JSON: {date: count}
+  completedTaskIds String   @default("[]") @map("completed_task_ids") // 已计算过XP的任务ID
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   @@map("game_progress")
 }

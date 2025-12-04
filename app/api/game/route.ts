@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { ACHIEVEMENTS } from "@/components/gamification/Achievements";
+import { ACHIEVEMENTS } from "@/lib/achievements";
 
 // 获取游戏进度
 export async function GET() {
@@ -27,13 +27,19 @@ export async function GET() {
           streak: 0,
           achievements: "{}",
           dailyCompleted: "{}",
+          completedTaskIds: "[]",
         },
       });
     }
 
+    // 从数据库统计实际完成的任务数
+    const actualCompleted = await prisma.task.count({
+      where: { isCompleted: true },
+    });
+
     return NextResponse.json({
       xp: progress.xp,
-      totalCompleted: progress.totalCompleted,
+      totalCompleted: actualCompleted, // 使用实际统计
       streak: progress.streak,
       lastActiveDate: progress.lastActiveDate?.toISOString().slice(0, 10) || null,
       achievements: JSON.parse(progress.achievements),
@@ -49,7 +55,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { action } = body;
+    const { action, taskId } = body;
 
     if (action !== "complete_task") {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
@@ -77,6 +83,7 @@ export async function POST(req: NextRequest) {
           streak: 0,
           achievements: "{}",
           dailyCompleted: "{}",
+          completedTaskIds: "[]",
         },
       });
     }
@@ -90,11 +97,37 @@ export async function POST(req: NextRequest) {
     const achievements: Record<string, { unlocked: boolean; unlockedAt: string }> = 
       JSON.parse(progress.achievements);
     const dailyCompleted: Record<string, number> = JSON.parse(progress.dailyCompleted);
+    
+    // 解析已完成的任务 ID 列表（防止重复计算）
+    let completedTaskIds: string[] = [];
+    try {
+      completedTaskIds = JSON.parse((progress as any).completedTaskIds || "[]");
+    } catch {
+      completedTaskIds = [];
+    }
+
+    // 检查这个任务是否已经被计算过
+    if (taskId && completedTaskIds.includes(taskId)) {
+      // 已经计算过了，不重复加 XP
+      return NextResponse.json({
+        xpGained: 0,
+        newXP: progress.xp,
+        totalCompleted: progress.totalCompleted,
+        streak: progress.streak,
+        newAchievements: [],
+        alreadyCounted: true,
+      });
+    }
 
     // 增加 XP
     const xpGained = 10;
     const newXP = progress.xp + xpGained;
     const newTotalCompleted = progress.totalCompleted + 1;
+
+    // 记录这个任务已被计算
+    if (taskId) {
+      completedTaskIds.push(taskId);
+    }
 
     // 更新当日完成数
     dailyCompleted[today] = (dailyCompleted[today] || 0) + 1;
@@ -158,6 +191,7 @@ export async function POST(req: NextRequest) {
         lastActiveDate: now,
         achievements: JSON.stringify(achievements),
         dailyCompleted: JSON.stringify(dailyCompleted),
+        completedTaskIds: JSON.stringify(completedTaskIds),
       },
     });
 

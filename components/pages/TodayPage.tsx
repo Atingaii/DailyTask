@@ -4,10 +4,15 @@ import { DailyQuote } from "@/components/quotes/DailyQuote";
 import { TopNav } from "@/components/layout/TopNav";
 import TodayClient from "./TodayPageClient";
 
+// 禁用缓存，确保每次都获取最新数据
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 async function getTodayTasks() {
   const dateStr = today();
-  const start = new Date(dateStr + "T00:00:00");
-  const end = new Date(dateStr + "T23:59:59");
+  // 使用 UTC 时间查询，确保与数据库一致
+  const start = new Date(dateStr + "T00:00:00.000Z");
+  const end = new Date(dateStr + "T23:59:59.999Z");
 
   const tasks = await prisma.task.findMany({
     where: { taskDate: { gte: start, lte: end } },

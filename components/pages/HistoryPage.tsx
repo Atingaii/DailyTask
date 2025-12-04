@@ -3,6 +3,10 @@ import { DailyQuote } from "@/components/quotes/DailyQuote";
 import { TopNav } from "@/components/layout/TopNav";
 import HistoryClient from "./HistoryPageClient";
 
+// 禁用缓存，确保每次都获取最新数据
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 async function getHistoryData() {
   // 获取最近30天的所有任务
   const thirtyDaysAgo = new Date();

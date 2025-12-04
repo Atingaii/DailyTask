@@ -67,7 +67,7 @@ function createDefaultGameData(): GameData {
 }
 
 // 完成任务时调用（异步版本，调用 API）
-export async function completeTaskAsync(): Promise<{ 
+export async function completeTaskAsync(taskId?: string): Promise<{ 
   xpGained: number; 
   newAchievements: Achievement[];
   levelUp: boolean;
@@ -77,17 +77,28 @@ export async function completeTaskAsync(): Promise<{
     const res = await fetch('/api/game', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'complete_task' }),
+      body: JSON.stringify({ action: 'complete_task', taskId }),
     });
     
     if (!res.ok) throw new Error('Failed to update');
     
     const data = await res.json();
-    const oldLevel = getLevel(data.newXP - data.xpGained).level;
-    const newLevel = getLevel(data.newXP).level;
+    
+    // 如果已经计算过，返回 0 XP
+    if (data.alreadyCounted) {
+      return {
+        xpGained: 0,
+        newAchievements: [],
+        levelUp: false,
+        newLevel: getLevel(data.newXP || 0).level,
+      };
+    }
+    
+    const oldLevel = getLevel((data.newXP || 0) - (data.xpGained || 0)).level;
+    const newLevel = getLevel(data.newXP || 0).level;
     
     return {
-      xpGained: data.xpGained,
+      xpGained: data.xpGained || 0,
       newAchievements: data.newAchievements || [],
       levelUp: newLevel > oldLevel,
       newLevel,
