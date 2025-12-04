@@ -8,7 +8,7 @@ type DayData = {
   total: number;
   completed: number;
   mood?: string;
-  tasks?: { title: string; isCompleted: boolean }[];
+  tasks?: { id: string; title: string; isCompleted: boolean }[];
 };
 
 type Props = {

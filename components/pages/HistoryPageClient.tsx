@@ -128,9 +128,27 @@ export default function HistoryClient({
       <div className="bg-white/65 backdrop-blur-xl rounded-2xl p-4 shadow-[0_8px_32px_rgba(31,38,135,0.1)] border border-white/50">
         <h3 className="text-sm font-semibold text-slate-700 mb-3">📅 按日期查看</h3>
         
-        <div className="flex items-center gap-2 overflow-x-auto text-xs mb-4 pb-1">
-          {initialDates.length > 0 ? (
-            initialDates.map((d) => (
+        {/* 日期选择器 */}
+        <div className="flex items-center gap-3 mb-4">
+          <input
+            type="date"
+            value={selectedDate || ""}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            max={new Date().toISOString().slice(0, 10)}
+            className="px-3 py-2 rounded-xl bg-white/70 border border-slate-200 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+          />
+          <button
+            onClick={() => setSelectedDate(new Date().toISOString().slice(0, 10))}
+            className="px-3 py-2 rounded-xl bg-blue-50 text-blue-600 text-xs font-medium hover:bg-blue-100 transition-all"
+          >
+            今天
+          </button>
+        </div>
+
+        {/* 历史日期快捷按钮 */}
+        {initialDates.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto text-xs mb-4 pb-1">
+            {initialDates.slice(0, 10).map((d) => (
               <button
                 key={d}
                 onClick={() => setSelectedDate(d)}
@@ -142,11 +160,9 @@ export default function HistoryClient({
               >
                 {d.slice(5)}
               </button>
-            ))
-          ) : (
-            <p className="text-slate-400">暂无历史数据</p>
-          )}
-        </div>
+            ))}
+          </div>
+        )}
 
         {selectedDate ? (
           <>
