@@ -179,60 +179,64 @@ export function ContributionGraph({ data, onDayClick }: Props) {
         </div>
       </div>
 
-      {/* 月份标签 */}
-      <div className="flex ml-8 mb-1 text-xs text-slate-400">
-        {monthLabels.map(({ month, weekIndex }) => (
-          <div 
-            key={`${month}-${weekIndex}`}
-            className="absolute"
-            style={{ marginLeft: `${weekIndex * 14}px` }}
-          >
-            {month}
+      <div className="overflow-x-auto pb-2">
+        {/* 月份标签行 */}
+        <div className="flex mb-1">
+          <div className="w-6 flex-shrink-0"></div>
+          <div className="flex">
+            {weeks.map((week, weekIndex) => {
+              const label = monthLabels.find(l => l.weekIndex === weekIndex);
+              return (
+                <div key={weekIndex} className="w-[14px] text-xs text-slate-400">
+                  {label ? label.month : ""}
+                </div>
+              );
+            })}
           </div>
-        ))}
-      </div>
-
-      <div className="flex gap-1 overflow-x-auto pb-2">
-        {/* 星期标签 */}
-        <div className="flex flex-col gap-[3px] text-xs text-slate-400 mr-1 flex-shrink-0">
-          {weekdays.map((day, i) => (
-            <div key={day} className="h-[11px] leading-[11px] text-right pr-1">
-              {i % 2 === 1 ? day : ""}
-            </div>
-          ))}
         </div>
 
-        {/* 格子图 */}
         <div className="flex gap-[3px]">
-          {weeks.map((week, weekIndex) => (
-            <div key={weekIndex} className="flex flex-col gap-[3px]">
-              {week.map((date, dayIndex) => {
-                if (!date) {
-                  return <div key={`empty-${dayIndex}`} className="w-[11px] h-[11px]" />;
-                }
-                
-                const dayData = data[date];
-                const level = dayData 
-                  ? getColorLevel(dayData.completed, dayData.total)
-                  : 0;
-                const hasData = dayData && dayData.total > 0;
-                const isToday = date === new Date().toISOString().slice(0, 10);
-                
-                return (
-                  <motion.div
-                    key={date}
-                    className={`w-[11px] h-[11px] rounded-sm cursor-pointer transition-all duration-200 ${colorClasses[level]} ${
-                      isToday ? "ring-2 ring-blue-400 ring-offset-1" : ""
-                    } ${hasData ? "hover:ring-2 hover:ring-slate-300" : ""}`}
-                    whileHover={{ scale: 1.3 }}
-                    onMouseEnter={(e) => handleMouseEnter(date, e)}
-                    onMouseLeave={handleMouseLeave}
-                    onClick={() => handleClick(date)}
-                  />
-                );
-              })}
-            </div>
-          ))}
+          {/* 星期标签 */}
+          <div className="flex flex-col gap-[3px] text-xs text-slate-400 flex-shrink-0 w-5">
+            {weekdays.map((day, i) => (
+              <div key={day} className="h-[11px] leading-[11px] text-right pr-1">
+                {i % 2 === 1 ? day : ""}
+              </div>
+            ))}
+          </div>
+
+          {/* 格子图 */}
+          <div className="flex gap-[3px]">
+            {weeks.map((week, weekIndex) => (
+              <div key={weekIndex} className="flex flex-col gap-[3px]">
+                {week.map((date, dayIndex) => {
+                  if (!date) {
+                    return <div key={`empty-${dayIndex}`} className="w-[11px] h-[11px]" />;
+                  }
+                  
+                  const dayData = data[date];
+                  const level = dayData 
+                    ? getColorLevel(dayData.completed, dayData.total)
+                    : 0;
+                  const hasData = dayData && dayData.total > 0;
+                  const isToday = date === new Date().toISOString().slice(0, 10);
+                  
+                  return (
+                    <motion.div
+                      key={date}
+                      className={`w-[11px] h-[11px] rounded-sm cursor-pointer transition-all duration-200 ${colorClasses[level]} ${
+                        isToday ? "ring-2 ring-blue-400 ring-offset-1" : ""
+                      } ${hasData ? "hover:ring-2 hover:ring-slate-300" : ""}`}
+                      whileHover={{ scale: 1.3 }}
+                      onMouseEnter={(e) => handleMouseEnter(date, e)}
+                      onMouseLeave={handleMouseLeave}
+                      onClick={() => handleClick(date)}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
