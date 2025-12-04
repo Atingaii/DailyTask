@@ -1,9 +1,7 @@
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { DailyQuote } from "@/components/quotes/DailyQuote";
-import { TopNav } from "@/components/layout/TopNav";
-import HistoryClient from "./HistoryPageClient";
 
-async function getHistoryData() {
+export async function GET() {
   // 获取最近30天的所有任务
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -46,14 +44,17 @@ async function getHistoryData() {
     });
   }
 
-  // 计算连续完成天数
+  // 计算连续完成天数 (streak)
   let streak = 0;
+  const today = new Date().toISOString().slice(0, 10);
+  
   for (let i = 0; i <= 30; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     const dateStr = d.toISOString().slice(0, 10);
     const stat = dailyStats[dateStr];
     
+    // 如果当天有任务且全部完成，或者当天没有任务（跳过）
     if (stat && stat.total > 0) {
       if (stat.completed === stat.total) {
         streak++;
@@ -61,43 +62,16 @@ async function getHistoryData() {
         break;
       }
     } else if (i > 0) {
+      // 跳过今天没有任务的情况，但之前的天数如果没任务就中断
       break;
     }
   }
 
-  // 获取有任务的日期列表
-  const dates = Object.keys(dailyStats).sort((a, b) => b.localeCompare(a));
-
-  return {
+  return NextResponse.json({
     totalTasks,
     completedTasks,
     streak,
     last7Days,
-    dates,
-  };
-}
-
-export default async function HistoryPage() {
-  const { totalTasks, completedTasks, streak, last7Days, dates } = await getHistoryData();
-
-  return (
-    <main className="min-h-screen bg-[var(--bg-soft)] text-slate-800 px-4 py-6 md:px-8 md:py-8">
-      <div className="mx-auto max-w-2xl">
-        <DailyQuote />
-        <div className="mb-4">
-          <h1 className="text-xl font-semibold tracking-tight">历史回顾</h1>
-          <p className="text-xs text-slate-400">查看过去的完成情况和统计数据</p>
-        </div>
-        <TopNav current="history" />
-
-        <HistoryClient 
-          initialDates={dates}
-          totalTasks={totalTasks}
-          completedTasks={completedTasks}
-          streak={streak}
-          last7Days={last7Days}
-        />
-      </div>
-    </main>
-  );
+    dailyStats,
+  });
 }
